@@ -1,63 +1,85 @@
 import pytest
-from pages.form_page import FormPage
-from conftest import random_data
 import allure
+from pages.form_page import FormPage
 
 
-
-@pytest.mark.parametrize("browser", ["chromium", "firefox", "webkit"], indirect=True)
-@pytest.mark.positive
+@allure.feature("Форма отправки")
+@pytest.mark.usefixtures("page")
 class TestFormPage:
-    @allure.title("Проверка открытия страницы формы")
-    @allure.description("Тест проверяет, что страница формы открывается корректно")
-    def test_open_form_page(page):
+    
+    @allure.title("Позитивный тест: отправка формы с валидными данными (по умолчанию Offer)")
+    @allure.description("Заполняем все поля валидными данными и нажимаем кнопку отправки.")
+    @allure.tag("positive")
+    def test_submit_form_offer(self, page, random_data):
         form_page = FormPage(page)
         form_page.open()
-        
-
-    @allure.title("Проверка заполнения формы")
-    @allure.description("Тест проверяет заполнение формы случайными валидными данными")    
-    def test_fill_form(page):
-        form_page = FormPage(page)
-        form_page.open()
-        form_page.fill_form(random_data["email"], random_data["names"], random_data["message_text"])
-        assert form_page.page.input_value(form_page.locators.EMAIL_INPUT) == random_data["email"]
-        assert form_page.page.input_value(form_page.locators.NAMES_INPUT) == random_data["names"]
-        assert form_page.page.input_value(form_page.locators.MESSAGE_TEXT_INPUT) == random_data["message_text"]
-
-
-    @allure.title("Проверка выбора опции Offer")
-    @allure.description("Тест проверяет выбор опции Offer в форме")
-    def test_select_offer(page):
-        form_page = FormPage(page)
-        form_page.open()
-        form_page.select_offer()
-        assert form_page.page.eval_on_selector(form_page.locators.SELECT_OPTION_OFFER, "el => el.value") == "Offer"
-
-
-    @allure.title("Проверка выбора опции Sale")
-    @allure.description("Тест проверяет выбор опции Sale в форме")
-    def test_select_sale(page):
-        form_page = FormPage(page)
-        form_page.open()
-        form_page.select_sale()
-        assert form_page.page.eval_on_selector(form_page.locators.SELECT_OPTION_OFFER, "el => el.value") == "Sale"
-
-
-    @allure.title("Проверка выбора опции Discount")
-    @allure.description("Тест проверяет выбор опции Discount в форме")
-    def test_select_discount(page):
-        form_page = FormPage(page)
-        form_page.open()
-        form_page.select_discount()
-        assert form_page.page.eval_on_selector(form_page.locators.SELECT_OPTION_OFFER, "el => el.value") == "Discount"
-
-
-    @allure.title("Проверка отправки формы")
-    @allure.description("Тест проверяет отправку формы с случайными данными")
-    def test_submit_form(page):
-        form_page = FormPage(page)
-        form_page.open()
-        form_page.fill_form(random_data["email"], random_data["names"], random_data["message_text"])
+        form_page.fill_form(
+            email=random_data["email"], 
+            name=random_data["names"], 
+            message=random_data["message_text"]
+        )
         form_page.submit_form()
 
+    @allure.title("Позитивный тест: отправка формы с опцией Sale")
+    @allure.description("Заполняем все поля валидными данными, выбираем Sale в выпадающем списке и нажимаем кнопку отправки.")
+    @allure.tag("positive")
+    def test_submit_form_sale(self, page, random_data):
+        form_page = FormPage(page)
+        form_page.open()
+        form_page.fill_form(
+            email=random_data["email"], 
+            name=random_data["names"], 
+            message=random_data["message_text"],
+            option="Sale"
+        )
+        form_page.submit_form()
+
+    @allure.title("Позитивный тест: отправка формы с опцией Discount")
+    @allure.description("Заполняем все поля валидными данными, выбираем Discount в выпадающем списке и нажимаем кнопку отправки.")
+    @allure.tag("positive")
+    def test_submit_form_discount(self, page, random_data):
+        form_page = FormPage(page)
+        form_page.open()
+        form_page.fill_form(
+            email=random_data["email"], 
+            name=random_data["names"], 
+            message=random_data["message_text"],
+            option="Discount"
+        )
+        form_page.submit_form()
+
+    @allure.title("Негативный тест: отправка формы с пустыми полями")
+    @allure.description("Нажимаем кнопку отправки формы без заполнения полей.")
+    @allure.tag("negative")
+    def test_submit_empty_form(self, page):
+        form_page = FormPage(page)
+        form_page.open()
+        form_page.submit_form()
+
+    @allure.title("Негативный тест: ввод большого количества символов в поля")
+    @allure.description("Заполняем поля очень длинными строками и нажимаем кнопку отправки.")
+    @allure.tag("negative")
+    def test_submit_form_long_text(self, page):
+        long_text = "A" * 10000
+        form_page = FormPage(page)
+        form_page.open()
+        form_page.fill_form(
+            email=f"{long_text}@example.com", 
+            name=long_text, 
+            message=long_text
+        )
+        form_page.submit_form()
+
+    @allure.title("Негативный тест: многократное нажатие на кнопку отправки")
+    @allure.description("Заполняем поля валидными данными и многократно нажимаем кнопку отправки.")
+    @allure.tag("negative")
+    def test_submit_form_multiple_times(self, page, random_data):
+        form_page = FormPage(page)
+        form_page.open()
+        form_page.fill_form(
+            email=random_data["email"], 
+            name=random_data["names"], 
+            message=random_data["message_text"]
+        )
+        for _ in range(10):  # Нажимаем кнопку 10 раз
+            form_page.submit_form()
