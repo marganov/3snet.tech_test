@@ -66,11 +66,11 @@ class TestFormPageMultiBrowser:
     @allure.title("Негативный тест: ввод явно невалидного email")
     @allure.description("Вводим в поле email невалидные значения, которые должны вызвать ошибку, и проверяем появление валидационного сообщения.")
     @allure.tag("negative", "expected_failure", "multibrowser")
-    def test_invalid_email_submission(self, page, invalid_email_rejected):
+    def test_invalid_email_submission(self, page, invalid_email_rejected, random_data):
         form_page = FormPage(page)
         form_page.open()
         
-        form_page.fill_form(email=invalid_email_rejected, name="Test User", message="Test message")
+        form_page.fill_form(email=invalid_email_rejected, name=random_data["names"], message=random_data["message_text"])
         form_page.submit_form()
 
         page.wait_for_timeout(2000)
@@ -82,11 +82,11 @@ class TestFormPageMultiBrowser:
     @allure.title("Баг-репорт: ввод невалидного email, который система ошибочно принимает")
     @allure.description("Вводим email, который должен считаться невалидным, но сайт ошибочно принимает его без валидации.")
     @allure.tag("bug", "investigate", "multibrowser")
-    def test_invalid_email_accepted_by_bug(self, page, invalid_email_accepted_by_bug):
+    def test_invalid_email_accepted_by_bug(self, page, invalid_email_accepted_by_bug, random_data):
         form_page = FormPage(page)
         form_page.open()
         
-        form_page.fill_form(email=invalid_email_accepted_by_bug, name="Test User", message="Test message")
+        form_page.fill_form(email=invalid_email_accepted_by_bug, name=random_data["names"], message=random_data["message_text"])
         form_page.submit_form()
 
         page.wait_for_timeout(2000)

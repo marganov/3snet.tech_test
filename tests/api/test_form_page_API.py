@@ -35,8 +35,8 @@ class TestFormAPI:
     @allure.title("Отправка формы с невалидным email (который принимается из-за бага)")
     @allure.description("Отправляем POST-запрос с невалидным email, который система ошибочно принимает.")
     @allure.tag("api", "negative", "bug")
-    def test_post_invalid_email_accepted_by_bug(self, invalid_email_accepted_by_bug):
-        data = {"email": invalid_email_accepted_by_bug, "name": "Test User", "message": "Test message"}
+    def test_post_invalid_email_accepted_by_bug(self, invalid_email_accepted_by_bug, random_data):
+        data = {"email": invalid_email_accepted_by_bug, "name": random_data["names"], "message": random_data["message_text"]}
         response = requests.post(FormPageURLs.FORM_PAGE_URL, data=data)
 
         # Ожидаем, что сервер отклонит запрос (например, 400 Bad Request), но он возвращает 200
