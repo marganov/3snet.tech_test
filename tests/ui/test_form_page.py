@@ -3,6 +3,7 @@ import allure
 from pages.form_page import FormPage
 
 
+@allure.suite("Тестирование формы в дефолтном браузере")
 @allure.feature("Форма отправки")
 @pytest.mark.usefixtures("page")
 class TestFormPage:
