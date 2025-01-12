@@ -1,17 +1,19 @@
 import pytest
-from faker import Faker
+from utils.data_generator import DataGenerator
 
 
 @pytest.fixture(scope="function")
 def random_data():
-    """Фикстура для генерации случайных данных для тестов"""
-    fake = Faker()
-    return {
-        "email": fake.email(),
-        "names": fake.name(),
-        "message_text": fake.text(),
-    }
+    """Фикстура для создания случайных валидных данных"""
+    return DataGenerator.generate_random_data()
 
+@pytest.fixture(scope="function")
+def invalid_email_rejected():
+    return DataGenerator.generate_invalid_email_rejected()
+
+@pytest.fixture(scope="function")
+def invalid_email_accepted_by_bug():
+    return DataGenerator.generate_invalid_email_accepted_by_bug()
 
 @pytest.fixture(scope="session")
 def context(browser):

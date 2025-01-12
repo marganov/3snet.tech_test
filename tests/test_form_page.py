@@ -83,3 +83,35 @@ class TestFormPage:
         )
         for _ in range(10):  # Нажимаем кнопку 10 раз
             form_page.submit_form()
+
+    @allure.title("Негативный тест: ввод явно невалидного email")
+    @allure.description("Вводим в поле email невалидные значения, которые должны вызвать ошибку, и проверяем появление валидационного сообщения.")
+    @allure.tag("negative", "expected_failure")
+    def test_invalid_email_submission(self, page, invalid_email_rejected):
+        form_page = FormPage(page)
+        form_page.open()
+        
+        form_page.fill_form(email=invalid_email_rejected, name="Test User", message="Test message")
+        form_page.submit_form()
+
+        page.wait_for_timeout(2000)
+
+        validation_message = page.locator('input[type="email"]').evaluate("el => el.validationMessage")
+        assert validation_message, f"Ожидалось валидационное сообщение для '{invalid_email_rejected}', но его нет."
+
+
+    @allure.title("Баг-репорт: ввод невалидного email, который система ошибочно принимает")
+    @allure.description("Вводим email, который должен считаться невалидным, но сайт ошибочно принимает его без валидации.")
+    @allure.tag("bug", "investigate")
+    def test_invalid_email_accepted_by_bug(self, page, invalid_email_accepted_by_bug):
+        form_page = FormPage(page)
+        form_page.open()
+        
+        form_page.fill_form(email=invalid_email_accepted_by_bug, name="Test User", message="Test message")
+        form_page.submit_form()
+
+        page.wait_for_timeout(2000)
+
+        validation_message = page.locator('input[type="email"]').evaluate("el => el.validationMessage")
+        
+        assert not validation_message, f"Неожиданное валидационное сообщение для '{invalid_email_accepted_by_bug}', хотя сайт должен был его принять из-за ошибки."
