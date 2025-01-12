@@ -171,5 +171,5 @@ cython_debug/
 .pypirc
 
 allure-results/
-allure-report/
+
 check_versions.py
